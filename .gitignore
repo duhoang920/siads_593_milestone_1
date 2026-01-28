@@ -1,3 +1,7 @@
 .ipynb_checkpoints/main-checkpoint.ipynb
 .virtual_documents/main.ipynb
 anaconda_projects/db/project_filebrowser.db
+lib/__pycache__/data_loader.cpython-312.pyc
+lib/__pycache__/data_wrangle.cpython-312.pyc
+lib/__pycache__/data_loader.cpython-312.pyc
+lib/__pycache__/data_wrangle.cpython-312.pyc
