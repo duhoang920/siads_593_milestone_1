@@ -27,6 +27,10 @@ def add_cols(df, col_names, start_position=0):
 
     return df
 
+def remove_cols(df, col_names):
+    df_new = df.drop(col_names, axis=1)
+    return df_new
+
 def df_formater(df):
     """
         Formats the DataFrame, but adding the State to the correct row.
@@ -61,7 +65,7 @@ def df_formater(df):
         
     return df
     
-def remove_cols(df):
+def remove_nan_cols(df):
     """
         Removes all empty columns in a DataFrame.
     
@@ -78,7 +82,7 @@ def remove_cols(df):
     df_drop_cols = df.dropna(axis=1, how='all')
     return df_drop_cols
 
-def remove_rows(df):
+def remove_nan_rows(df):
     """
         Removes all empty rows in a DataFrame.
     
@@ -121,7 +125,7 @@ def col_name_changer(df, og_string, new_string):
 
     return df
 
-def df_split(df):
+def df_split_state_city(df, col_name):
     """
         Splits the DataFrame into 2 DataFrames.
     
@@ -137,13 +141,44 @@ def df_split(df):
             2. A DataFrame containing rows with the City, State.
     """
     # Rows with just the State (no comma)
-    df_state_only = df[~df['State'].str.contains(',')].reset_index(drop=True)
+    df_state_only = df[~df[col_name].str.contains(',')].reset_index(drop=True)
     # Remove leading white spaces from column 'Label (Grouping)'
-    df_state_only['Label (Grouping)'] = df_state_only['Label (Grouping)'].str.lstrip()
+    df_state_only = remove_leading_wspace(df_state_only, 'Label (Grouping)')
     
     # Rows with city and State (contains a comma)
-    df_state_city = df[df['State'].str.contains(',')].reset_index(drop=True)
+    df_state_city = df[df[col_name].str.contains(',')].reset_index(drop=True)
     # Remove leading white spaces from column 'Label (Grouping)'
-    df_state_city['Label (Grouping)'] = df_state_city['Label (Grouping)'].str.lstrip()
+    df_state_city = remove_leading_wspace(df_state_city, 'Label (Grouping)')
 
     return df_state_only, df_state_city
+
+def remove_leading_wspace(df, col_name):
+    """
+        Remove leading white spaces from column.
+    
+        Parameters
+        ----------
+        pandas.DataFrame
+            A DataFrame containing all original rows
+        string
+            Name of the column(s)
+    
+        Returns
+        -------
+        pandas.DataFrame
+            1. A DataFrame containing rows with only the State.
+            2. A DataFrame containing rows with the City, State.
+    """
+    df[col_name] = df[col_name].str.lstrip()
+    
+    return df
+
+def df_split(df, col_name, value1, value2):
+    df_value1 = df[df[col_name] == value1].copy()
+    df_value2 =  df[df[col_name] == value2].copy()
+
+    df_value1_new = remove_cols(df_value1, 'TOTAL NUMBER OF RACES REPORTED -- Total population')
+    df_value2_new = remove_cols(df_value2, 'TOTAL NUMBER OF RACES REPORTED -- Total population')
+
+    return df_value1_new, df_value2_new
+    
