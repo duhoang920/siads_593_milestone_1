@@ -28,8 +28,29 @@ def add_cols(df, col_names, start_position=0):
     return df
 
 def remove_cols(df, col_names):
+    """
+        Takes a list of new column(s) and removes them from the dataframe.        
+    
+        Parameters
+        ----------
+        string.list
+            A list of column names.
+    
+        Returns
+        -------
+        pandas.DataFrame
+            A DataFrame with the specified columns removed.
+    """
     df_new = df.drop(col_names, axis=1)
+    
     return df_new
+
+def remove_rows(df, col, row_values):
+    pattern = '|'.join(row_values)
+    df_new = df[~df[col].str.contains(pattern, na=False)]
+
+    return df_new
+    
 
 def df_formater(df):
     """
@@ -96,8 +117,8 @@ def remove_nan_rows(df):
         pandas.DataFrame
             A DataFrame containing non-empty rows.
     """
-    # Drop rows where all columns from the third column onwards are blank
-    cols_to_check = df.columns[2:]
+    # Drop rows where all columns from the 4th column onwards are blank
+    cols_to_check = df.columns[3:]
     # Use dropna on the subset of columns
     df_drop_rows = df.dropna(how='all', subset=cols_to_check)
     
@@ -177,8 +198,9 @@ def df_split(df, col_name, value1, value2):
     df_value1 = df[df[col_name] == value1].copy()
     df_value2 =  df[df[col_name] == value2].copy()
 
-    df_value1_new = remove_cols(df_value1, 'TOTAL NUMBER OF RACES REPORTED -- Total population')
-    df_value2_new = remove_cols(df_value2, 'TOTAL NUMBER OF RACES REPORTED -- Total population')
+    # df_value1_new = remove_cols(df_value1, 'TOTAL NUMBER OF RACES REPORTED!!Total population')
+    # df_value2_new = remove_cols(df_value2, 'TOTAL NUMBER OF RACES REPORTED!!Total population')
 
-    return df_value1_new, df_value2_new
+    # return df_value1_new, df_value2_new
+    return df_value1, df_value2
     
