@@ -215,6 +215,17 @@ def df_split_state_city(df, col_names):
 
     return df_state_only, df_state_city
 
+def remove_percent(df):
+    for col in df.columns:
+        if df[col].astype(str).str.contains('%').any():
+            df[col] = df[col].astype(str).str.replace('%', '', regex=False)
+            df.rename(columns={col: f"{col} - %"}, inplace=True)
+    return df
+
+def remove_symbol(df):
+    df = df.astype(str).replace('±', '', regex=True)
+    return df
+
 def census_filter_cols(df):
     final_col_list = [
     'State',
