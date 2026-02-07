@@ -12,3 +12,4 @@ lib/.ipynb_checkpoints/data_wrangle-checkpoint.py
 data/processed/.ipynb_checkpoints/Final_dataset-checkpoint.csv
 lib/__pycache__/data_loader.cpython-313.pyc
 lib/__pycache__/data_wrangle.cpython-313.pyc
+lib/visual.py
