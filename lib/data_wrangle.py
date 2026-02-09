@@ -46,6 +46,28 @@ def remove_cols(df, col_names):
     
     return df_new
 
+def drop_columns(df, column_strings):
+    """
+        Searches for certain strings in column names and drops those columns
+    
+        Parameters
+        ----------
+        df : pandas.DataFrame
+        columns_strings : list of strings to search for in the column names 
+ 
+        Returns
+        -------
+        pandas.DataFrame
+            A dataframe without the columns that had the strings specified
+            
+    """
+
+    df_dropped = df.copy()
+    for search_string in column_strings: 
+        df_dropped = df_dropped.drop([col for col in df_dropped.columns if search_string in col], axis = 1)
+
+    return df_dropped
+
 def remove_rows(df, col, row_values):
     pattern = '|'.join(row_values)
     df_new = df[~df[col].str.contains(pattern, na=False)]
@@ -361,5 +383,15 @@ def census_rename_cols(df):
     )
 
     return df_rename_cols
-
     
+
+def numeric_converter(df, start_col=0):
+    if start_col == 0:
+        cols_to_convert = df.columns[:]
+    else:
+        cols_to_convert = df.columns[start_col:]
+        
+    for col in cols_to_convert:
+        df[col] = df[col].str.replace(',', '', regex=False)
+        df[col] = pd.to_numeric(df[col], errors='coerce')
+    return df
