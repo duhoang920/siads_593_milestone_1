@@ -269,9 +269,9 @@ def df_combo(df1, df2, col_name, how):
     df_combined = pd.merge(df1, df2, on=col_name, how=how)
     return df_combined
 
-def grab_cols_for_visual(df, col_names):
-    df_only_cols = df[final_col_list]
-    return df_only_cols
+# def grab_cols_for_visual(df, col_names):
+#     df_only_cols = df[final_col_list]
+#     return df_only_cols
 
 
 def select_columns(df, column_names):
@@ -579,3 +579,28 @@ def pivot_questions(df):
 
     return df
 
+# ---- Section 4: Specific Functions for Diabetes and Census Cateories ----
+
+def diabete_metrics(df):
+    cols = [
+        'State',
+        'Overall - Diabetes-DataValue',
+        'Males - Diabetes-DataValue',
+        'Females - Diabetes-DataValue',
+        'est - Total Pop',
+        'est - Total Pop 18 and Over',
+        'est - Total Pop 18 and Over – Male - %',
+        'est - Total Pop 18 and Over – Female - %',
+        'est - Pop 25 and Over - Educated',
+        'est - Pop 16 and Over',
+        'est - Pop 16 and Over – Employed - %',
+        'est - Pop 16 and Over – Unemployed - %',
+        'est - Workers 16 and Over',
+        
+
+        
+    ]
+    dia_met_df = select_columns(df, cols)
+
+    return dia_met_df
+    
