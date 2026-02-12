@@ -579,7 +579,95 @@ def pivot_questions(df):
 
     return df
 
-# ---- Section 4: Specific Functions for Diabetes and Census Metrics ----
+def process_chronic_disease_data():
+    """
+        Runs through the workflow utilizing defined functions to process the chronic disease data
+    
+        Parameters
+        ----------
+        None
+ 
+        Returns
+        -------
+        pandas.DataFrame
+            The finalized data frame
+            
+            
+    """
+    # filter values in raw chronic disease data - year, data type, question, and state
+    columns_include = ['YearStart','DataValueType','Question']
+    values_include = [[2022],['Crude Prevalence'],['Diabetes among adults','Obesity among adults','Arthritis among adults',
+                                                    'Food insecure in the past 12 months among households',
+                                                    'Chronic obstructive pulmonary disease among adults',
+                                                    'Lack of health insurance among adults aged 18-64',
+                                                    'Lack of reliable transportation in the past 12 months among adults',
+                                                    'Unable to pay mortgage, rent, or utility bills in the past 12 months among adults',
+                                                    'Current asthma among adults']]
+    columns_exclude = ['LocationDesc']
+    values_exclude = [['Guam','District of Columbia','Puerto Rico','United States','Virgin Islands']]
+    
+    cd_filtered_df = filter_dataframe(df = df_indicators_raw,
+                                   columns_with_include = columns_include,
+                                   values_to_include = values_include,
+                                   columns_with_exclude = columns_exclude,
+                                   values_to_exclude = values_exclude)
+    # update values in the 'Question' column to readable names
+    cd_rename_mapping_dict = {'Arthritis among adults': 'Arthritis', 
+                      'Current asthma among adults': 'Asthma',
+                      'Unable to pay mortgage, rent, or utility bills in the past 12 months among adults': 'Bill Payment Instability',
+                      'Obesity among adults': 'Obesity',
+                      'Diabetes among adults': 'Diabetes',
+                      'Lack of reliable transportation in the past 12 months among adults': 'Transportation Instability',
+                      'Chronic obstructive pulmonary disease among adults': 'COPD'
+                     }
+    
+    cd_renamed_df = column_value_changer(cd_filtered_df, 'Question', cd_rename_mapping_dict)
+
+    # select columns of interest
+    cd_column_name_list = ['LocationDesc','Question','DataValueUnit','DataValue',
+                        'Stratification1','LowConfidenceLimit','HighConfidenceLimit',
+                        'Geolocation']
+    
+    cd_selected_columns = select_columns(cd_renamed_df, cd_column_name_list)
+
+    # rename state column for later join
+    cd_state_rename = {'LocationDesc': 'State'}
+    cd_state_rename_df = rename_columns(cd_selected_columns, cd_state_rename)
+
+    # process each stratification and append to a list 
+    
+    cd_processed_dfs = []
+    stratifications = [
+        'Overall', 'Male', 'Female',
+        'Hispanic', 'White, non-Hispanic', 'Black, non-Hispanic',
+        'Hawaiian or Pacific Islander, non-Hispanic',
+        'American Indian or Alaska Native, non-Hispanic',
+        'Asian, non-Hispanic',
+        'Multiracial, non-Hispanic'
+    ]
+                       
+    
+    for strat in stratifications:
+        # filter to the specified value
+        temp_df = stratify_dataframe(cd_state_rename_df, 'Stratification1', strat)
+        # pivot to make each question its own column
+        temp_df = pivot_questions(temp_df)
+        # add prefixes and update 'State' column
+        prefix = f'{strat} - '
+        temp_df = temp_df.add_prefix(prefix)
+        temp_df = temp_df.rename(columns={f'{prefix}State': 'State'})
+        
+        cd_processed_dfs.append(temp_df)
+    
+    # merge all processed chronic disease dataframes together 
+    chronic_disease_final = cd_processed_dfs[0]
+    for next_df in cd_processed_dfs[1:]:
+        chronic_disease_final = pd.merge(chronic_disease_final, next_df, on='State', how='outer')
+
+    return chronic_disease_final
+    
+
+# ---- Section 4: Specific Functions for Diabetes and Census Cateories ----
 
 def diabete_metrics_all(df):
     """
