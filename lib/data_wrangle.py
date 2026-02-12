@@ -52,8 +52,10 @@ def drop_columns(df, column_strings):
     
         Parameters
         ----------
-        df : pandas.DataFrame
-        columns_strings : list of strings to search for in the column names 
+        pandas.DataFrame
+            A dataframe with all original columns
+        string.list
+            List of strings to search for in the column names 
  
         Returns
         -------
@@ -134,6 +136,107 @@ def col_name_changer(df, og_string, new_string):
 
     return df
 
+def rename_columns(df, column_name_mappings):
+    """
+        Changes column names
+    
+        Parameters
+        ----------
+        pandas.DataFrame
+            A DataFrame containing all original rows
+        dict
+            A dictionary with each key as the original column name and value as the new column name
+    
+        Returns
+        -------
+        pandas.DataFrame
+            A DataFrame containing new column names.
+    """
+
+    df = df.rename(columns=column_name_mappings)
+
+    return df
+
+def column_value_changer(df, column_name, rename_mapping):
+    """
+        Renames values within a specified column
+    
+        Parameters
+        ----------
+        pandas.DataFrame
+            A dataframe with all original columns
+        string
+            Column to rename the values in
+        dict
+            Dictionary that maps the old column values (key) to the new ones (value)
+ 
+        Returns
+        -------
+        pandas.DataFrame
+            Dataframe with updated value names in specified columns
+            
+            
+    """
+    df_renamed = df.copy()
+    df_renamed[column_name] = df_renamed[column_name].replace(rename_mapping)
+
+    return df_renamed
+
+def filter_dataframe(df, columns_with_include, values_to_include,
+                    columns_with_exclude, values_to_exclude):
+    """
+        Filter rows based on features of interest
+    
+        Parameters
+        ----------
+        pandas.DataFrame
+        
+        string.list 
+            list of columns with values in include
+        string.list
+            list of values to include
+        string.list
+            list of columns with values to exclude
+        string.list
+            list of values to exclude
+ 
+        Returns
+        -------
+        pandas.DataFrame
+            A filtered dataframe
+            
+            
+    """
+
+    # check to make sure there are values listed for each column name
+    if len(columns_with_include) != len(values_to_include):
+        raise Exception("Each column listed must have values passed to filter on.")
+
+    # key check to make sure the columns exist in the data frame
+    missing_cols = [col for col in columns_with_include if col not in df.columns]
+    if missing_cols:
+        raise KeyError(f"The following columns were not found in the DataFrame: {missing_cols}")
+
+    missing_cols = [col for col in columns_with_exclude if col not in df.columns]
+    if missing_cols:
+        raise KeyError(f"The following columns were not found in the DataFrame: {missing_cols}")
+
+    # create copy to filter
+    filtered_df = df.copy()
+
+    # zip to match include column list with values to include
+    for col, val_list in zip(columns_with_include, values_to_include):
+        # apply filter for included values
+        filtered_df = filtered_df[filtered_df[col].isin(val_list)]
+
+    # zip to match exclude column list with values to exclude
+    for col, val_list in zip(columns_with_exclude, values_to_exclude):
+        # apply filter for excluded values
+        filtered_df = filtered_df[~filtered_df[col].isin(val_list)]
+        
+    return filtered_df
+
+
 
 def remove_leading_wspace(df, col_names):
     """
@@ -170,11 +273,33 @@ def grab_cols_for_visual(df, col_names):
     df_only_cols = df[final_col_list]
     return df_only_cols
 
+
+def select_columns(df, column_names):
+    """
+        Selects specified columns from a data frame
+        DOES SAME THING AS GRAB COLS FOR VISUAL -snj
+    
+        Parameters
+        ----------
+        df : pandas.DataFrame
+        columns : list of column names to run a correlation 
+ 
+        Returns
+        -------
+        pandas.DataFrame
+            A dataframe with only the columns of interest
+            
+            
+    """
+    df_specific_columns = df[column_names]
+
+    return df_specific_columns
+
 def df_transpose():
     print("transpose df")
 
     
-# ---- Section 2: Specific Functions ----
+# ---- Section 2: Specific Functions for Census Data ----
 
 def df_formater(df):
     """
@@ -395,3 +520,62 @@ def numeric_converter(df, start_col=0):
         df[col] = df[col].str.replace(',', '', regex=False)
         df[col] = pd.to_numeric(df[col], errors='coerce')
     return df
+
+
+# ---- Section 3: Specific Functions for Chronic Disease Set ----
+
+def stratify_dataframe(df, column, value):
+    """
+        Stratifies data frame based on single column and value specified
+        For example: Select only "overall" values or only specific race values
+    
+        Parameters
+        ----------
+        df : pandas.DataFrame
+        columns : column with stratifying values
+        value : stratifying value name
+ 
+        Returns
+        -------
+        pandas.DataFrame
+            A stratified dataframe
+            
+            
+    """
+    # create copy to stratify
+    stratified_df = df.copy()
+
+    # apply filter to select only those rows
+    stratified_df = stratified_df[stratified_df[column]==value]
+
+    return stratified_df
+
+
+def pivot_questions(df):
+    """
+        Pivots a data frame so that it turns the values in the Quesiton column into
+        individual columns 
+    
+        Parameters
+        ----------
+        df : pandas.DataFrame
+ 
+        Returns
+        -------
+        pandas.DataFrame
+            The pivoted data frame
+            
+            
+    """
+    # pivot on the "Question" column and include the data value and low and high confidence limits for each
+    df = df.pivot(index='State', columns='Question',
+                   values=['DataValue', 'LowConfidenceLimit', 'HighConfidenceLimit'])
+
+    # rename the columns so they are in the format "Question - Value"
+    df.columns = [f'{q}-{val}' for val, q in df.columns]
+
+    # reset the index
+    df = df.reset_index()
+
+    return df
+
