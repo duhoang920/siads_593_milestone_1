@@ -522,7 +522,7 @@ def numeric_converter(df, start_col=0):
     return df
 
 
-# ---- Section 3: Specific Functions for Chronic Disease Set ----
+# ---- Section 3: Specific Functions for Chronic Disease Data ----
 
 def stratify_dataframe(df, column, value):
     """
