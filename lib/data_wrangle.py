@@ -579,16 +579,30 @@ def pivot_questions(df):
 
     return df
 
-# ---- Section 4: Specific Functions for Diabetes and Census Cateories ----
+# ---- Section 4: Specific Functions for Diabetes and Census Metrics ----
 
-def diabete_metrics(df):
+def diabete_metrics_all(df):
+    """
+        Grabs all of the columns of interest for the Diabetes vs Metrics
+    
+        Parameters
+        ----------
+        df : pandas.DataFrame
+ 
+        Returns
+        -------
+        pandas.DataFrame
+            DataFrame filtered down to all of releveant columns.
+            
+            
+    """
     cols = [
         'State',
         'Overall - Diabetes-DataValue',
         'Males - Diabetes-DataValue',
         'Females - Diabetes-DataValue',
         'est - Total Pop',
-        'est - Total Pop 18 and Over',
+        'est - Total Pop 18 and Over - %',
         'est - Total Pop 18 and Over – Male - %',
         'est - Total Pop 18 and Over – Female - %',
         'est - Pop 25 and Over - Educated',
@@ -596,11 +610,235 @@ def diabete_metrics(df):
         'est - Pop 16 and Over – Employed - %',
         'est - Pop 16 and Over – Unemployed - %',
         'est - Workers 16 and Over',
-        
-
-        
+        'est - Workers 16 and Over – Drove Alone - %',
+        'est - Workers 16 and Over – Carpooled - %',
+        'est - Workers 16 and Over – Public Transit - %',
+        'est - Workers 16 and Over – Walked - %',
+        'est - Workers 16 and Over – Other Transport - %',
+        'est - Workers 16 and Over – Work From Home - %',
+        'est - Households With Income',
+        'est - Households With Earnings - %',
+        'est - Median Household Income',
+        'est - Households With Social Security Income - %',
+        'est - Households With Suppliemental Security Income - %',
+        'est - Households With Cash Assistance - %',
+        'est - Households With SNAP - %',
+        'est - Civilian Noninstitutionalized Pop',
+        'est - Pop With Private Health Insurance - %',
+        'est - Pop With Public Health Insurance - %', 
+        'est - Pop Uninsured - %',
+        'est - Pop 18 and Over Below Poverty - %'
     ]
+    
     dia_met_df = select_columns(df, cols)
 
     return dia_met_df
+
+def diabete_v_overall(df):
+    cols = [
+        'State',
+        'Overall - Diabetes-DataValue',
+        'Males - Diabetes-DataValue',
+        'Females - Diabetes-DataValue',
+        'est - Total Pop',
+        'est - Total Pop 18 and Over - %',
+        'est - Total Pop 18 and Over – Male - %',
+        'est - Total Pop 18 and Over – Female - %'
+    ]
+    
+    df_temp1 = select_columns(df, cols)
+
+    # Need to make a copy b/c pandas warning you about “chained assignment”—you’re trying to assign into a DataFrame object that was created by slicing/filtering another DataFrame, and pandas can’t   guarantee whether you’re modifying the original data or just a temporary copy. This is exactly what SettingWithCopyWarning is about.
+    df_final= df_temp1.copy()
+
+    # Calculating total population sub-groups.
+    df_final['Total Pop 18 and Over'] = df_final['est - Total Pop'] * (df_final['est - Total Pop 18 and Over - %'] / 100)
+    df_final['Total Pop 18 and Over – Male'] = df_final['est - Total Pop'] * (df_final['est - Total Pop 18 and Over – Male - %'] / 100)
+    df_final['Total Pop 18 and Over – Female'] = df_final['est - Total Pop'] * (df_final['est - Total Pop 18 and Over – Female - %'] / 100)
+    
+
+    # # Cacluating total Diabetes "Crude Prevalence" for each sup group.
+    df_final['Diabetes Prevalance - 18 and over'] = df_final['Total Pop 18 and Over'] * (df_final['Overall - Diabetes-DataValue'] / 100)
+    df_final['Diabetes Prevalance - Males 18 and over'] = df_final['Total Pop 18 and Over – Male'] * (df_final['Males - Diabetes-DataValue'] /100)
+    df_final['Diabetes Prevalance - Females 18 and over'] = df_final['Total Pop 18 and Over – Female'] * (df_final['Females - Diabetes-DataValue'] / 100)
+
+    return df_final
+
+def diabete_v_educated(df):
+    cols = [
+        'State',
+        'Overall - Diabetes-DataValue',
+        'est - Pop 25 and Over - Educated'
+    ]
+    
+    df_temp1 = select_columns(df, cols)
+
+    # Need to make a copy b/c pandas warning you about “chained assignment”—you’re trying to assign into a DataFrame object that was created by slicing/filtering another DataFrame, and pandas can’t   guarantee whether you’re modifying the original data or just a temporary copy. This is exactly what SettingWithCopyWarning is about.
+    df_final = df_temp1.copy()
+
+    # # Cacluating total Diabetes "Crude Prevalence" for each sup group.
+    df_final['Diabetes Prevalance - 25 and over - Edu'] = df_final['est - Pop 25 and Over - Educated'] * (df_final['Overall - Diabetes-DataValue'] /100)
+
+    return df_final
+
+def diabete_v_employement(df):
+    cols = [
+        'State',
+        'Overall - Diabetes-DataValue',
+        'Males - Diabetes-DataValue',
+        'Females - Diabetes-DataValue',
+        'est - Pop 16 and Over',
+        'est - Pop 16 and Over – Employed - %',
+        'est - Pop 16 and Over – Unemployed - %'
+
+    ]
+
+    df_temp1 = select_columns(df, cols)
+
+    # Need to make a copy b/c pandas warning you about “chained assignment”—you’re trying to assign into a DataFrame object that was created by slicing/filtering another DataFrame, and pandas can’t   guarantee whether you’re modifying the original data or just a temporary copy. This is exactly what SettingWithCopyWarning is about.
+    df_final= df_temp1.copy()
+
+    # Calculating total population sub-groups.
+    df_final['Total Pop 16 and Over - Employed'] = df_final['est - Pop 16 and Over'] * (df_final['est - Pop 16 and Over – Employed - %'] / 100)
+    df_final['Total Pop 16 and Over - Unemployed'] = df_final['est - Pop 16 and Over'] * (df_final['est - Pop 16 and Over – Unemployed - %'] / 100)
+    
+
+    # Cacluating total Diabetes "Crude Prevalence" for each sup group.
+    df_final['Diabetes Prevalance - 16 and Over - Employed'] = df_final['Total Pop 16 and Over - Employed'] * (df_final['Overall - Diabetes-DataValue'] / 100)
+    df_final['Total Pop 16 and Over - Unemployed'] = df_final['Total Pop 16 and Over - Unemployed'] * (df_final['Overall - Diabetes-DataValue'] / 100)
+
+    return df_final
+
+def diabete_v_commute(df):
+    cols = [
+        'State',
+        'Overall - Diabetes-DataValue',
+        'est - Workers 16 and Over',
+        'est - Workers 16 and Over – Drove Alone - %',
+        'est - Workers 16 and Over – Carpooled - %',
+        'est - Workers 16 and Over – Public Transit - %',
+        'est - Workers 16 and Over – Walked - %',
+        'est - Workers 16 and Over – Other Transport - %',
+        'est - Workers 16 and Over – Work From Home - %'
+    ]
+
+    df_temp1 = select_columns(df, cols)
+
+    # Need to make a copy b/c pandas warning you about “chained assignment”—you’re trying to assign into a DataFrame object that was created by slicing/filtering another DataFrame, and pandas can’t   guarantee whether you’re modifying the original data or just a temporary copy. This is exactly what SettingWithCopyWarning is about.
+    df_final= df_temp1.copy()
+
+    # Calculating total population sub-groups.
+    df_final['Workers 16 and Over - That Drive or Carpool'] = df_final['est - Workers 16 and Over'] * ((df_final['est - Workers 16 and Over – Drove Alone - %'] + df_final['est - Workers 16 and Over – Carpooled - %'])/ 100)
+    df_final['Workers 16 and Over - Public Transit'] = df_final['est - Workers 16 and Over'] * (df_final['est - Workers 16 and Over – Public Transit - %'] / 100)
+    df_final['Workers 16 and Over - Walk'] = df_final['est - Workers 16 and Over'] * (df_final['est - Workers 16 and Over – Walked - %'] / 100)
+    df_final['Workers 16 and Over - Other Transport'] = df_final['est - Workers 16 and Over'] * (df_final['est - Workers 16 and Over – Other Transport - %'] / 100)
+    df_final['Workers 16 and Over - WFH'] = df_final['est - Workers 16 and Over'] * (df_final['est - Workers 16 and Over – Work From Home - %'] / 100)
+
+    # Cacluating total Diabetes "Crude Prevalence" for each sup group.
+    df_final['Diabetes Prevalance - People Who Drive to Work'] = df_final['Workers 16 and Over - That Drive or Carpool'] * (df_final['Overall - Diabetes-DataValue'] / 100)
+    df_final['Diabetes Prevalance - People Who Use Public Transit'] = df_final['Workers 16 and Over - Public Transit'] * (df_final['Overall - Diabetes-DataValue'] / 100)
+    df_final['Diabetes Prevalance - People Who Walk'] = df_final['Workers 16 and Over - Walk'] * (df_final['Overall - Diabetes-DataValue'] / 100)
+    df_final['Diabetes Prevalance - People Who Use Other Transport'] = df_final['Workers 16 and Over - Other Transport'] * (df_final['Overall - Diabetes-DataValue'] / 100)
+    df_final['Diabetes Prevalance - People Who WFH'] = df_final['Workers 16 and Over - WFH'] * (df_final['Overall - Diabetes-DataValue'] / 100)
+    
+    return df_final
+
+def diabete_v_income(df):
+
+    cols = [
+        'State',
+        'Overall - Diabetes-DataValue',
+        'est - Households With Income',
+        'est - Households With Earnings - %',
+        'est - Median Household Income',
+        'est - Households With Social Security Income - %',
+        'est - Households With Suppliemental Security Income - %',
+        'est - Households With Cash Assistance - %',
+        'est - Households With SNAP - %'
+    ]
+
+    df_temp1 = select_columns(df, cols)
+
+    # Need to make a copy b/c pandas warning you about “chained assignment”—you’re trying to assign into a DataFrame object that was created by slicing/filtering another DataFrame, and pandas can’t   guarantee whether you’re modifying the original data or just a temporary copy. This is exactly what SettingWithCopyWarning is about.
+    df_final= df_temp1.copy()
+
+    # Calculating total population sub-groups.
+    df_final['Households with Earnings'] = df_final['est - Households With Income'] * (df_final['est - Households With Earnings - %'] / 100)
+    df_final['Households with SSI'] = df_final['est - Households With Income'] * (df_final['est - Households With Social Security Income - %'] / 100)
+    df_final['Households with Supplimential'] = df_final['est - Households With Income'] * (df_final['est - Households With Suppliemental Security Income - %'] / 100)
+    df_final['Households with Cash Assistance'] = df_final['est - Households With Income'] * (df_final['est - Households With Cash Assistance - %'] / 100)
+    df_final['Households with SNAP'] = df_final['est - Households With Income'] * (df_final['est - Households With SNAP - %'] / 100)
+    
+    financial_assist_percentage = (
+        df_final['est - Households With Social Security Income - %'] + 
+        df_final['est - Households With Suppliemental Security Income - %'] + 
+        df_final['est - Households With Cash Assistance - %'] +
+        df_final['est - Households With SNAP - %']
+    )
+        
+    df_final['Households with Financial Assistant'] = df_final['est - Households With Income'] * (financial_assist_percentage/ 100)
+
+    # Cacluating total Diabetes "Crude Prevalence" for each sup group.
+    df_final['Diabetes Prevalance - Households with income'] = df_final['Households with Earnings'] * (df_final['Overall - Diabetes-DataValue'] / 100)
+    df_final['Diabetes Prevalance - Households with SSI'] = df_final['Households with SSI'] * (df_final['Overall - Diabetes-DataValue'] / 100)
+    df_final['Diabetes Prevalance - Households with Supplimental'] = df_final['Households with Supplimential'] * (df_final['Overall - Diabetes-DataValue'] / 100)
+    df_final['Diabetes Prevalance - Households with Cash Assistance'] = df_final['Households with Cash Assistance'] * (df_final['Overall - Diabetes-DataValue'] / 100)
+    df_final['Diabetes Prevalance - Households with SNAP'] = df_final['Households with SNAP'] * (df_final['Overall - Diabetes-DataValue'] / 100)
+    df_final['Diabetes Prevalance - Financial Assistant'] = df_final['Households with Financial Assistant'] * (df_final['Overall - Diabetes-DataValue'] / 100)
+
+    return df_final
+
+def diabete_v_health_insurance(df):
+    cols = [
+        'State',
+        'Overall - Diabetes-DataValue',
+        'est - Civilian Noninstitutionalized Pop',
+        'est - Pop With Private Health Insurance - %',
+        'est - Pop With Public Health Insurance - %', 
+        'est - Pop Uninsured - %',
+    ]
+
+    df_temp1 = select_columns(df, cols)
+
+    # Need to make a copy b/c pandas warning you about “chained assignment”—you’re trying to assign into a DataFrame object that was created by slicing/filtering another DataFrame, and pandas can’t   guarantee whether you’re modifying the original data or just a temporary copy. This is exactly what SettingWithCopyWarning is about.
+    df_final= df_temp1.copy()
+
+    # Calculating total population sub-groups.
+    df_final['Pop with Private Health Insurance'] = df_final['est - Civilian Noninstitutionalized Pop'] * (df_final['est - Pop With Private Health Insurance - %'] / 100)
+    df_final['Pop with Public Health Insurance'] = df_final['est - Civilian Noninstitutionalized Pop'] * (df_final['est - Pop With Public Health Insurance - %'] / 100)
+    df_final['Pop with Health Insurance'] = df_final['est - Civilian Noninstitutionalized Pop'] * ((df_final['est - Pop With Private Health Insurance - %'] + df_final['est - Pop With Public Health Insurance - %'])/ 100)
+    df_final['Pop with Without Health Insurance'] = df_final['est - Civilian Noninstitutionalized Pop'] * (df_final['est - Pop Uninsured - %'] / 100)
+
+    # Cacluating total Diabetes "Crude Prevalence" for each sup group.
+    df_final['Diabetes Prevalance - Pop with Private Health Insurance'] = df_final['Pop with Private Health Insurance'] * (df_final['Overall - Diabetes-DataValue'] / 100)
+    df_final['Diabetes Prevalance - Pop with Public Health Insurance'] = df_final['Pop with Public Health Insurance'] * (df_final['Overall - Diabetes-DataValue'] / 100)
+    df_final['Diabetes Prevalance - Pop with Health Insurance'] = df_final['Pop with Health Insurance'] * (df_final['Overall - Diabetes-DataValue'] / 100)
+    df_final['Diabetes Prevalance - Pop without Health Insurance'] = df_final['Pop with Without Health Insurance'] * (df_final['Overall - Diabetes-DataValue'] / 100)
+
+    return df_final
+
+def diabete_v_poverty(df):
+    cols = [
+        'State',
+        'Overall - Diabetes-DataValue',
+        'est - Total Pop',
+        'est - Total Pop 18 and Over - %',
+        'est - Pop 18 and Over Below Poverty - %'
+    ]
+
+    df_temp1 = select_columns(df, cols)
+
+    # Need to make a copy b/c pandas warning you about “chained assignment”—you’re trying to assign into a DataFrame object that was created by slicing/filtering another DataFrame, and pandas can’t   guarantee whether you’re modifying the original data or just a temporary copy. This is exactly what SettingWithCopyWarning is about.
+    df_final= df_temp1.copy()
+
+    # Calculating total population sub-groups.
+    df_final['Total Pop 18 and Over'] = df_final['est - Total Pop'] * (df_final['est - Total Pop 18 and Over - %'] / 100)
+    df_final['Total Pop 18 and Over Below Poverty'] = df_final['Total Pop 18 and Over'] * (df_final['est - Pop 18 and Over Below Poverty - %'] / 100)
+    df_final['Total Pop 18 and Over Above Poverty'] = df_final['Total Pop 18 and Over'] * ((100 - df_final['est - Pop 18 and Over Below Poverty - %']) / 100)
+
+    # Cacluating total Diabetes "Crude Prevalence" for each sup group.
+    df_final['Diabetes Prevalance - Pop 18 and Over Below Poverty'] = df_final['Total Pop 18 and Over Below Poverty'] * (df_final['Overall - Diabetes-DataValue'] / 100)
+    df_final['Diabetes Prevalance - Pop 18 and Over Above Poverty'] = df_final['Total Pop 18 and Over Above Poverty'] * (df_final['Overall - Diabetes-DataValue'] / 100)
+
+    return df_final
     
