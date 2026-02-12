@@ -8,7 +8,7 @@ from matplotlib.colors import LinearSegmentedColormap
 import seaborn as sns
 
 # Visual colors for consistency
-ORANGE = "#D35400"
+ORANGE = "#E56D09" 
 TEAL   = "#0F8A83"
 RED    = "#C62828"
 GREEN  = "#2E7D32"
@@ -89,16 +89,13 @@ def histogram_boxplot(data, feature, figsize = (12, 7), kde = True, bins = 15):
 
    
     sns.boxplot(
-        data = data, x = feature, ax = ax_box2, showmeans = True, color = "#D35400"
-    )                   # Boxplot will be created and a star will indicate the mean value of the column
+        data = data, x = feature, ax = ax_box2, showmeans = True, color = ORANGE)       # Boxplot will be created and a star will indicate the mean value of the column
     sns.histplot(
         data = data, x = feature, ax = ax_hist2, bins = bins, color = TEAL, kde=kde)
-    # ) if bins else sns.histplot(
-    #     data = data, x = feature, kde = kde, ax = ax_hist2
-    #)                   # For histogram
+   
     ax_hist2.axvline(
         data[feature].mean(),
-        color = "green", 
+        color = "black", 
         linestyle = "--",
         label="Mean"
     )                   # Add mean to the histogram
@@ -126,7 +123,7 @@ def histogram_boxplot(data, feature, figsize = (12, 7), kde = True, bins = 15):
 # Subtitle (figure-level) 
     fig = plt.gcf()
     fig.text(
-        0.5, 0.93,
+        0.5, 0.90,
         "Across the U.S. States in 2022",
         ha="center",
         fontsize=14,
@@ -203,14 +200,14 @@ def create_corrplot(df, column_names, corr_method):
     plt.xticks(fontsize=12, rotation=45)
     plt.yticks(fontsize=12, rotation=0)
     
-     # Main Title (new - replaces original plt.title)
+     # Main Title 
     plt.suptitle(
         "Spearman Correlation of Chronic Disease Prevalence Among Adults",
         fontsize=16,
         fontweight="bold",
         y=0.80
     )
-
+    # Subtitle
     plt.title(
         "Across the U.S. States in 2022",
         fontsize=14,
@@ -220,10 +217,6 @@ def create_corrplot(df, column_names, corr_method):
     
     
     plt.tight_layout(rect=[0, 0, 1, 0.8])
-   
-    # #plt.title(f'{corr_method} Correlation of Chronic Diseases Among Adults Across the U.S. - 2022')
-    # plt.title("Correlation of Chronic Diseases Among Adults Across the U.S. States 2022",fontsize=16)
-    # plt.tight_layout()
     plt.show()
 
 
@@ -251,8 +244,7 @@ def create_splom(df, column_names):
         diag_kind="kde",
         plot_kws={
             'ci': None,
-            'line_kws':{'color':'gray'}
-            # "alpha": 0.6,
+            'line_kws':{'color':'gray'},
             "color": TEAL          
         },
         diag_kws={
@@ -265,124 +257,114 @@ def create_splom(df, column_names):
         "Scatter Plot Matrix of Chronic Disease Prevalence Among Adults",
         fontsize=16,
         fontweight="bold",
-        y=1.02
+        y=0.99
     )
     
     g.fig.text(
-        0.5, 0.98,
+        0.5, 0.94,
         "Across the U.S. States in 2022",
         ha="center",
         fontsize=14,
         color="black"
     )
       
+    g.fig.subplots_adjust(top=0.90)
     plt.show()
 
 
-# def plot_scatter_on_axis(
-#     df,
-#     x_col: str,
-#     y_col: str,
-#     ax,
-#     title: str | None = None,
-#     x_label: str | None = None,
-#     y_label: str | None = None,
-# ):
-#     """
-#     Plot a scatter relationship on an existing Matplotlib axis.
+ 
+# Barplot showing chronic disease prevalence across the top states
 
-#     Parameters
-#     ----------
-#     df : pandas.DataFrame
-#         Wide dataframe (one row per state).
-#     x_col : str
-#         Predictor column name (e.g., income).
-#     y_col : str
-#         Outcome column name (e.g., diabetes prevalence).
-#     ax: matplotlib.axes.Axes
-#         Axis to draw on (supports subplot grids).
-#     title : str, optional
-#         Subplot title. Defaults to f"{y_col} vs {x_col}".
-#     x_label : str, optional
-#         X-axis label. Defaults to x_col (or blank if you prefer).
-#     y_label : str, optional
-#         Y-axis label. Defaults to y_col.
-
-#     Notes
-#     -----
-#     - This function does NOT reshape data.
-#     - It assumes df[x_col] and df[y_col] are already numeric (or plottable).
-#     """
-#     plot_df = df[[x_col, y_col]].dropna()
-
-#     sns.regplot(
-#         data=plot_df,
-#         x=x_col,
-#         y=y_col,
-#         ax=ax,
-#     )
-
-#     ax.set_title(title or f"{y_col} vs {x_col}", fontsize=10)
-#     ax.set_xlabel(x_label if x_label is not None else "")
-#     ax.set_ylabel(y_label if y_label is not None else y_col)
-
-
-# def plot_scatter_grid(
-#     df,
-#     x_cols: list[str],
-#     y_col: str,
-#     ncols: int = 3,
-#     fig_title: str | None = None,
-#     y_label: str = "Diabetes Prevalence (%)",
-# ):
+def plot_state_prevalence(  
+    df,
+    state_col="State",
+    value_col=None,        
+    feature=None,          
+    subtitle="Across the U.S. States in 2022",
+    top_n=None
+):
     
-#     """
-#     Create a small-multiples grid of scatterplots: one predictor per panel.
+    """
+    Create a bar chart showing state-level prevalence for a selected chronic disease.
 
-#     Parameters
-#     ----------
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        DataFrame containing state-level data.
+
+    state_col : str, default="State"
+        Column name representing U.S. states.
+
+    value_col : str
+        Column name of the prevalence metric to be plotted 
+        (e.g., "Diabetes Prev (%)", "Obesity Prev (%)").
+
+    feature : str, optional
+        Human-readable name of the disease used for titles and axis labels 
+        (e.g., "Diabetes"). If None, value_col will be used.
+
+    subtitle : str, default="Across the U.S. States in 2022"
+        Subtitle displayed below the main chart title.
+
+    top_n : int, default=15
+        Number of states to display, sorted by highest prevalence.
+        If None, all states are displayed.
+
+    Returns
+    -------
+    None
+        Displays a formatted bar chart.
+    """
     
-#     df : pandas.DataFrame
-#         Wide dataframe (one row per state).
-#     x_cols : list[str]
-#         Predictor columns to iterate over.
-#     y_col : str
-#         Outcome column (fixed across panels).
-#     ncols : int
-#         Number of columns in the grid.
-#     fig_title : str, optional
-#         Title for the entire figure.
-#     y_label : str
-#         Common y-axis label.
 
-#     Returns
-#     -------
-#     matplotlib.figure.Figure
-#         The created figure (useful for saving).
-#     """
-#     n_plots = len(x_cols)
-#     nrows = (n_plots + ncols - 1) // ncols  # ceiling division
+    # Validation to ensure value_col is provided
+    if value_col is None:
+        raise ValueError("You must pass a value_col (e.g., 'Diabetes Prev (%)').")
 
-#     fig, axes = plt.subplots(nrows, ncols, figsize=(5 * ncols, 4 * nrows))
-#     axes = axes.flatten() if hasattr(axes, "flatten") else [axes]
+    # If feature not provided, fall back to value_col
+    if feature is None:
+        feature = value_col
 
-#     for ax, x_col in zip(axes, x_cols):
-#         plot_scatter_on_axis(
-#             df=df,
-#             x_col=x_col,
-#             y_col=y_col,
-#             ax=ax,
-#             title=x_col,          # short per-panel title
-#             x_label="",           # keep panels clean
-#             y_label=y_label,
-#         )
+    plot_df = df[[state_col, value_col]].copy()
+    plot_df[value_col] = pd.to_numeric(plot_df[value_col], errors="coerce")
 
-#     # Turn off any unused panels
-#     for ax in axes[n_plots:]:
-#         ax.axis("off")
+    plot_df = (
+        plot_df
+        .dropna(subset=[value_col])
+        .sort_values(value_col, ascending=False)
+        .head(top_n)
+    )
 
-#     if fig_title:
-#         fig.suptitle(fig_title, fontsize=16)
+    plt.figure(figsize=(12, 8))
 
-#     fig.tight_layout()
-#     return fig
+    ax = sns.barplot(
+        data=plot_df,
+        x=state_col,
+        y=value_col,
+        color=TEAL,
+        alpha=.5  
+    )
+
+    
+    plt.suptitle(
+        f"{feature} Prevalence (%) by Top States",
+        fontsize=18,
+        fontweight="bold",
+        y=0.98
+    )
+
+    plt.title(subtitle, fontsize=13, y=0.94)
+
+    
+    ax.set_ylabel(f"{feature} Prev. (%)")  
+    ax.set_xlabel("")
+
+    plt.xticks(rotation=45, ha="right")
+
+    ax.grid(False)
+    sns.despine()
+
+    plt.tight_layout()
+    plt.show()
+
+
