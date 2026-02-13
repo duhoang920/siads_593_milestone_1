@@ -5,3 +5,6 @@ lib/.ipynb_checkpoints/visual-checkpoint.py
 lib/.ipynb_checkpoints/visual2-checkpoint.py
 lib/.ipynb_checkpoints/visual2-checkpoint.py
 lib/__pycache__/visual2.cpython-313.pyc
+*.ipynb
+*.ipynb
+mf_main.ipynb
