@@ -7,9 +7,10 @@ This repository contains a modular Python data pipeline designed to load, clean,
 ```
 .
 ├── main.ipynb          # Orchestrates the end-to-end workflow
-├── Data_loader.py      # Functions for loading and saving data
-├── Data_wrangle.py     # Data cleaning, transformation, and processing logic
-├── visual2.py          # Plot generation and visualization formatting
+├── lib/
+│   ├── Data_loader.py      # Functions for loading and saving data
+│   ├── Data_wrangle.py     # Data cleaning, transformation, and processing logic
+│   ├── visual2.py          # Plot generation and visualization formatting
 ├── data/
 │   ├── raw/            # Raw input datasets
 │   └── processed/      # Cleaned and processed outputs
@@ -63,3 +64,29 @@ This project relies on common Python libraries.
 * matplotlib
 * seaborn
 * jupyter
+
+## Getting Started
+1. Clone the repository:
+   * Open GitHub Desktop.
+   * Click File -> Clone Repository.
+   * In the dialog: URL tab: Paste the repository URL (e.g., https://github.com/username/repo.git).
+   * Click Clone.
+   * GitHub Desktop will download the repository and set it up locally.
+2. Install required dependencies.
+3. Open main.ipynb in Jyupter.
+4. Run the Notebook from top to bottom.
+
+
+## Jupyter Auto‑Reloading (Recommended)
+
+This project is meant to be run from main.ipynb while you edit the other .py files. The notebook uses Jupyter’s autoreload feature so your changes show up automatically.
+
+### Why Autoreload?
+Normally, if you change a .py file, Jupyter won’t notice unless you restart the notebook. Autoreload fixes this by automatically picking up changes when you run a cell.
+
+### Commands Used
+
+```
+%reload_ext autoreload
+%autoreload 2
+```
