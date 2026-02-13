@@ -181,9 +181,9 @@ def create_corrplot(df, column_names, corr_method):
     
     
     corr_df = select_columns(df, column_names)
+    corr_name = corr_method.capitalize()
 
     corr_obj = corr_df.corr(method=corr_method)
-    print(type(custom_cmap))
     
     plt.figure(figsize=(12,8))
     sns.heatmap(
@@ -202,7 +202,7 @@ def create_corrplot(df, column_names, corr_method):
     
      # Main Title 
     plt.suptitle(
-        "Spearman Correlation of Chronic Disease Prevalence Among Adults",
+        f"{corr_name} Correlation with Diabetes Prevalence Among Adults",
         fontsize=16,
         fontweight="bold",
         y=0.80
