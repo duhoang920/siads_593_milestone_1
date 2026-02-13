@@ -368,3 +368,69 @@ def plot_state_prevalence(
     plt.show()
 
 
+
+
+def histogram_boxplot2(data, feature, ax_box, ax_hist, kde = True, bins = 15):
+    sns.boxplot(
+        data = data, x = feature, ax = ax_box, showmeans = True, color = "#D35400"
+    )
+
+    sns.histplot(
+        data = data, x = feature, ax = ax_hist, bins = bins, color = TEAL, kde=kde)
+
+    ax_hist.axvline(
+        data[feature].mean(),
+        color = "green", 
+        linestyle = "--",
+        label="Mean"
+    )                   # Add mean to the histogram
+    ax_hist.axvline(
+        data[feature].median(), 
+        color = "red", 
+        linestyle = "--",
+        label="Median",
+        
+    )                   # Add median to the histogram
+
+    ax_hist.legend()
+    ax_box.set(xlabel='')
+    ax_hist.set(ylabel='Number of States')
+
+
+
+def histogram_boxplot_grid(df, features, cols):
+    import math
+    n_features = len(features)
+    rows = math.ceil(n_features / cols)
+    
+    fig, axes = plt.subplots(nrows=rows*2, 
+                             ncols=cols, 
+                             figsize = (15,12))
+    axes = axes.flatten()
+
+    for i, feature in enumerate(features):
+        column_i = i % cols
+        row_j = i // cols
+
+        ax_i_box = (row_j * 2 * cols) + column_i
+        ax_i_hist = ax_i_box + cols
+
+        ax_box = axes[ax_i_box]
+        ax_hist = axes[ax_i_hist]
+
+        ax_box.sharex(ax_hist)
+
+        histogram_boxplot2(df, feature, ax_box, ax_hist)
+
+        ax_box.set_title(f"Distribution of {feature} Among Adults",
+                         fontsize=16,
+                         fontweight="bold")
+
+
+    plt.tight_layout()
+    plt.subplots_adjust(hspace=0.4)
+    plt.show()
+
+        
+
+
