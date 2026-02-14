@@ -371,6 +371,34 @@ def plot_state_prevalence(
 
 
 def histogram_boxplot2(data, feature, ax_box, ax_hist, kde = True, bins = 15):
+    """
+        Boxplot and histogram created to be passed into subplot
+
+
+        Parameters
+        ----------
+        data : pandas.DataFrame
+
+        feature : str
+            Name of the column in the df to plot
+
+        ax_box : int
+            Subplot axis for the boxplot (created in histogram_boxplot_grid)
+
+        ax_hist : int
+            Subplot axis for the boxplot (created in histogram_boxplot_grid)
+
+        kde : boolean, defualt=True
+            Include/exclude density estimation line
+
+        bins : int, default=15
+            bin size for histogram
+
+        Returns
+        -------
+        boxplot and histogram
+
+    """
     sns.boxplot(
         data = data, x = feature, ax = ax_box, showmeans = True, color = "#D35400"
     )
@@ -399,6 +427,25 @@ def histogram_boxplot2(data, feature, ax_box, ax_hist, kde = True, bins = 15):
 
 
 def histogram_boxplot_grid(df, features, cols):
+    """
+        Creates matrix of boxplots/histograms for list of features
+
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+
+        features : list
+            list of features to plot
+
+        cols : int
+            number of columns for the subplot
+
+        
+        Returns
+        -------
+        renders subplots of boxplot/histograms for list of features
+    """
     import math
     n_features = len(features)
     rows = math.ceil(n_features / cols)
@@ -430,6 +477,136 @@ def histogram_boxplot_grid(df, features, cols):
     plt.tight_layout()
     plt.subplots_adjust(hspace=0.4)
     plt.show()
+
+
+
+def create_bubbleplot(df, x, y, size, color):
+    """
+        Creates bubbleplot with three dimensions
+
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+
+        x : str
+            name of column for x axis
+
+        y : str
+            name of column for y axis
+
+        size : str
+            name of column for dot sizes
+        color: str
+            name of column for color gradient
+
+        
+        Returns
+        -------
+        renders bubbleplot
+    """
+
+
+    plt.figure(figsize=(10, 6))
+    cmap= "viridis"
+
+    # make plot
+    plot = sns.scatterplot(
+        data=df, 
+        x=x, 
+        y=y, 
+        # size=size, 
+        hue=color, 
+        s=200, 
+        alpha=.8, 
+        palette="viridis",
+        legend=False
+    )
+
+
+    # make color bar on the side for legend
+    norm = plt.Normalize(df[color].min(), df[color].max())
+    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+    sm.set_array([])
+        cbar = plt.colorbar(sm, ax=plot)
+    cbar.set_label(color)
+
+
+    
+    plt.title(f"{x} vs {y} by {size}")
+    plt.tight_layout()
+    
+    plt.show()
+
+
+def mult_scatter_plot(df, x, y, mult_colors, color_axis_name):
+    """
+        Creates scatter plot with colors for each feature
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+
+        x : str
+            name of column for x axis
+
+        y : str
+            name of column for y axis
+
+        mult_colors : list
+            list of features for colors
+
+        color_axis_name : str
+            name of category on color axis (e.g., insurance, work transportation, etc.)
+
+
+        
+        Returns
+        -------
+        renders scatter plot
+
+    """
+
+    df_long = df.melt(id_vars=[x, y], 
+                      value_vars=mult_colors, 
+                      var_name=color_axis_name, 
+                      value_name='Percentage_Value')
+
+    # 2. Create the plot
+    plt.figure(figsize=(10, 6))
+    sns.scatterplot(
+        data=df_long,
+        x=x,
+        y=y,
+        hue=color_axis_name,
+        size='Percentage_Value', # Optional: makes the dots bigger based on the %
+        alpha=0.7
+    )
+
+    plt.title(f'{y} vs {x} by {color_axis_name}')
+    plt.grid(True, linestyle='--', alpha=0.6)
+    plt.show()
+
+
+    # # go from wide to long format
+    # df_long = df.melt(id_vars=[x], value_vars=mult_y, 
+    #                   var_name='feature', value_name='value')
+
+    # plt.figure(figsize=(10, 6))
+    # sns.scatterplot(
+    #     data=df_long, 
+    #     x=x, 
+    #     y='value', 
+    #     hue='feature', 
+    #     palette=color_list
+    # )
+
+    # plt.title(f"Scatter Plot of {', '.join(mult_y)} vs {x}")
+    # plt.show()
+
+        
+
+    
 
         
 
