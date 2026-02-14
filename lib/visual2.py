@@ -369,7 +369,6 @@ def plot_state_prevalence(
 
 
 
-
 def histogram_boxplot2(data, feature, ax_box, ax_hist, kde = True, bins = 15):
     """
         Boxplot and histogram created to be passed into subplot
@@ -514,8 +513,7 @@ def create_bubbleplot(df, x, y, size, color):
     plot = sns.scatterplot(
         data=df, 
         x=x, 
-        y=y, 
-        # size=size, 
+        y=y,
         hue=color, 
         s=200, 
         alpha=.8, 
@@ -528,7 +526,7 @@ def create_bubbleplot(df, x, y, size, color):
     norm = plt.Normalize(df[color].min(), df[color].max())
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     sm.set_array([])
-        cbar = plt.colorbar(sm, ax=plot)
+    cbar = plt.colorbar(sm, ax=plot)
     cbar.set_label(color)
 
 
@@ -586,23 +584,6 @@ def mult_scatter_plot(df, x, y, mult_colors, color_axis_name):
     plt.title(f'{y} vs {x} by {color_axis_name}')
     plt.grid(True, linestyle='--', alpha=0.6)
     plt.show()
-
-
-    # # go from wide to long format
-    # df_long = df.melt(id_vars=[x], value_vars=mult_y, 
-    #                   var_name='feature', value_name='value')
-
-    # plt.figure(figsize=(10, 6))
-    # sns.scatterplot(
-    #     data=df_long, 
-    #     x=x, 
-    #     y='value', 
-    #     hue='feature', 
-    #     palette=color_list
-    # )
-
-    # plt.title(f"Scatter Plot of {', '.join(mult_y)} vs {x}")
-    # plt.show()
 
         
 

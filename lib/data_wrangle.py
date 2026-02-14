@@ -71,6 +71,22 @@ def drop_columns(df, column_strings):
     return df_dropped
 
 def remove_rows(df, col, row_values):
+    """
+        Removes specific rows when a specific value is in place in a DataFrame.
+    
+        Parameters
+        ----------
+        pandas.DataFrame
+            A DataFrame containing all original columns
+        string.list
+            List of strings to search for in the column names
+        string
+    
+        Returns
+        -------
+        pandas.DataFrame
+            A DataFrame containing the non removed rows.
+    """
     pattern = '|'.join(row_values)
     df_new = df[~df[col].str.contains(pattern, na=False)]
 
@@ -252,26 +268,56 @@ def remove_leading_wspace(df, col_names):
         Returns
         -------
         pandas.DataFrame
-            1. A DataFrame containing rows with only the State.
-            2. A DataFrame containing rows with the City, State.
+        
     """
     df[col_names] = df[col_names].str.lstrip()
     
     return df
 
 def df_split(df, col_names, value1, value2):
+    """
+        Takes a Dataframe and splits on a column name and string.
+    
+        Parameters
+        ----------
+        pandas.DataFrame
+            A DataFrame containing all original rows
+        string
+            Name of the column(s)
+    
+        Returns
+        -------
+        pandas.DataFrame
+            1. A DataFrame containing rows with only the State.
+            2. A DataFrame containing rows with the City, State.
+    """
     df_value1 = df[df[col_names] == value1].copy()
     df_value2 =  df[df[col_names] == value2].copy()
 
     return df_value1, df_value2
 
 def df_combo(df1, df2, col_name, how):
+    """
+        Merges 2 DataFrames together on Column and join type.
+    
+        Parameters
+        ----------
+        pandas.DataFrame
+            A DataFrame containing all original rows
+        string
+            Name of the column(s)
+        string
+            Type of join
+    
+        Returns
+        -------
+        pandas.DataFrame
+            1. A DataFrame containing rows with only the State.
+            2. A DataFrame containing rows with the City, State.
+    """
     df_combined = pd.merge(df1, df2, on=col_name, how=how)
     return df_combined
 
-# def grab_cols_for_visual(df, col_names):
-#     df_only_cols = df[final_col_list]
-#     return df_only_cols
 
 
 def select_columns(df, column_names):
@@ -363,6 +409,20 @@ def df_split_state_city(df, col_names):
     return df_state_only, df_state_city
 
 def remove_percent(df):
+    """
+        Removes the percent character (%) within the columnes that have percent values.
+    
+        Parameters
+        ----------
+        df : pandas.DataFrame
+ 
+        Returns
+        -------
+        pandas.DataFrame
+            DataFrame with the percent character (%) removed.
+            
+            
+    """
     for col in df.columns:
         if df[col].astype(str).str.contains('%').any():
             df[col] = df[col].astype(str).str.replace('%', '', regex=False)
@@ -370,10 +430,38 @@ def remove_percent(df):
     return df
 
 def remove_symbol(df):
+    """
+        Removes the ± character  within the columnes of MP).
+    
+        Parameters
+        ----------
+        df : pandas.DataFrame
+ 
+        Returns
+        -------
+        pandas.DataFrame
+            DataFrame with the ± character removed.
+            
+            
+    """
     df = df.astype(str).replace('±', '', regex=True)
     return df
 
 def census_filter_cols(df):
+    """
+       Filtes down to a specific set of columsn for the census DataFrame.
+    
+        Parameters
+        ----------
+        pandas.DataFrame
+            A DataFrame containing all original rows
+    
+        Returns
+        -------
+        pandas.DataFrame
+            1. A DataFrame containing only the specific columns.
+    """
+    
     final_col_list = [
     'State',
     'Label (Grouping)',
@@ -441,6 +529,20 @@ def census_filter_cols(df):
     return df_only_cols
 
 def census_rename_cols(df):
+    """
+       Renames columns to a specific new name.
+    
+        Parameters
+        ----------
+        pandas.DataFrame
+            A DataFrame containing all original rows
+    
+        Returns
+        -------
+        pandas.DataFrame
+            1. A DataFrame containing colums with the new name.
+    """
+    
     df_rename_cols = df.rename(columns={
     'SEX AND AGE!!Total population': 'Total Pop',
     'SEX AND AGE!!Total population!!Male': 'Total Pop - Male',
@@ -507,6 +609,21 @@ def census_rename_cols(df):
     
 
 def numeric_converter(df, start_col=0):
+    """
+       Converts the values within a DataFrame into numeric.
+    
+        Parameters
+        ----------
+        pandas.DataFrame
+            A DataFrame containing all original rows
+        int.start_col
+            what column to start.
+    
+        Returns
+        -------
+        pandas.DataFrame
+            1. A DataFrame containing colums with the new name.
+    """
     if start_col == 0:
         cols_to_convert = df.columns[:]
     else:
@@ -680,6 +797,7 @@ def diabete_metrics_all(df):
             
             
     """
+    
     cols = [
         'State',
         'Overall - Diabetes-DataValue',
@@ -719,6 +837,21 @@ def diabete_metrics_all(df):
     return dia_met_df
 
 def diabete_v_overall(df):
+    """
+        Grabs all of the columns of interest for the Diabetes vs overall subgroup
+    
+        Parameters
+        ----------
+        df : pandas.DataFrame
+ 
+        Returns
+        -------
+        pandas.DataFrame
+            DataFrame filtered down to all of releveant columns.
+            
+            
+    """
+    
     cols = [
         'State',
         'Overall - Diabetes-DataValue',
@@ -732,7 +865,7 @@ def diabete_v_overall(df):
     
     df_temp1 = select_columns(df, cols)
 
-    # Need to make a copy b/c pandas warning you about “chained assignment”—you’re trying to assign into a DataFrame object that was created by slicing/filtering another DataFrame, and pandas can’t   guarantee whether you’re modifying the original data or just a temporary copy. This is exactly what SettingWithCopyWarning is about.
+    # Need to make a copy b/c pandas warning you about “chained assignment”.
     df_final= df_temp1.copy()
 
     # Calculating total population sub-groups.
@@ -740,8 +873,7 @@ def diabete_v_overall(df):
     df_final['Total Pop 18 and Over – Male'] = df_final['est - Total Pop'] * (df_final['est - Total Pop 18 and Over – Male - %'] / 100)
     df_final['Total Pop 18 and Over – Female'] = df_final['est - Total Pop'] * (df_final['est - Total Pop 18 and Over – Female - %'] / 100)
     
-
-    # # Cacluating total Diabetes "Crude Prevalence" for each sup group.
+    # Cacluating total Diabetes "Crude Prevalence" for each sup group.
     df_final['Diabetes Prevalance - 18 and over'] = df_final['Total Pop 18 and Over'] * (df_final['Overall - Diabetes-DataValue'] / 100)
     df_final['Diabetes Prevalance - Males 18 and over'] = df_final['Total Pop 18 and Over – Male'] * (df_final['Males - Diabetes-DataValue'] /100)
     df_final['Diabetes Prevalance - Females 18 and over'] = df_final['Total Pop 18 and Over – Female'] * (df_final['Females - Diabetes-DataValue'] / 100)
@@ -749,6 +881,21 @@ def diabete_v_overall(df):
     return df_final
 
 def diabete_v_educated(df):
+    """
+        Grabs all of the columns of interest for the Diabetes vs educated subgroup
+    
+        Parameters
+        ----------
+        df : pandas.DataFrame
+ 
+        Returns
+        -------
+        pandas.DataFrame
+            DataFrame filtered down to all of releveant columns.
+            
+            
+    """
+    
     cols = [
         'State',
         'Overall - Diabetes-DataValue',
@@ -757,15 +904,30 @@ def diabete_v_educated(df):
     
     df_temp1 = select_columns(df, cols)
 
-    # Need to make a copy b/c pandas warning you about “chained assignment”—you’re trying to assign into a DataFrame object that was created by slicing/filtering another DataFrame, and pandas can’t   guarantee whether you’re modifying the original data or just a temporary copy. This is exactly what SettingWithCopyWarning is about.
+    # Need to make a copy b/c pandas warning you about “chained assignment”.
     df_final = df_temp1.copy()
 
-    # # Cacluating total Diabetes "Crude Prevalence" for each sup group.
+    # Cacluating total Diabetes "Crude Prevalence" for each sup group.
     df_final['Diabetes Prevalance - 25 and over - Edu'] = df_final['est - Pop 25 and Over - Educated'] * (df_final['Overall - Diabetes-DataValue'] /100)
 
     return df_final
 
 def diabete_v_employement(df):
+    """
+        Grabs all of the columns of interest for the Diabetes vs employement subgroup
+    
+        Parameters
+        ----------
+        df : pandas.DataFrame
+ 
+        Returns
+        -------
+        pandas.DataFrame
+            DataFrame filtered down to all of releveant columns.
+            
+            
+    """
+    
     cols = [
         'State',
         'Overall - Diabetes-DataValue',
@@ -779,7 +941,7 @@ def diabete_v_employement(df):
 
     df_temp1 = select_columns(df, cols)
 
-    # Need to make a copy b/c pandas warning you about “chained assignment”—you’re trying to assign into a DataFrame object that was created by slicing/filtering another DataFrame, and pandas can’t   guarantee whether you’re modifying the original data or just a temporary copy. This is exactly what SettingWithCopyWarning is about.
+    # Need to make a copy b/c pandas warning you about “chained assignment”.
     df_final= df_temp1.copy()
 
     # Calculating total population sub-groups.
@@ -794,6 +956,21 @@ def diabete_v_employement(df):
     return df_final
 
 def diabete_v_commute(df):
+    """
+        Grabs all of the columns of interest for the Diabetes vs commute subgroup
+    
+        Parameters
+        ----------
+        df : pandas.DataFrame
+ 
+        Returns
+        -------
+        pandas.DataFrame
+            DataFrame filtered down to all of releveant columns.
+            
+            
+    """
+    
     cols = [
         'State',
         'Overall - Diabetes-DataValue',
@@ -808,7 +985,7 @@ def diabete_v_commute(df):
 
     df_temp1 = select_columns(df, cols)
 
-    # Need to make a copy b/c pandas warning you about “chained assignment”—you’re trying to assign into a DataFrame object that was created by slicing/filtering another DataFrame, and pandas can’t   guarantee whether you’re modifying the original data or just a temporary copy. This is exactly what SettingWithCopyWarning is about.
+    # Need to make a copy b/c pandas warning you about “chained assignment”.
     df_final= df_temp1.copy()
 
     # Calculating total population sub-groups.
@@ -828,7 +1005,20 @@ def diabete_v_commute(df):
     return df_final
 
 def diabete_v_income(df):
-
+    """
+        Grabs all of the columns of interest for the Diabetes vs income subgroup
+    
+        Parameters
+        ----------
+        df : pandas.DataFrame
+ 
+        Returns
+        -------
+        pandas.DataFrame
+            DataFrame filtered down to all of releveant columns.
+           
+    """
+    
     cols = [
         'State',
         'Overall - Diabetes-DataValue',
@@ -843,7 +1033,7 @@ def diabete_v_income(df):
 
     df_temp1 = select_columns(df, cols)
 
-    # Need to make a copy b/c pandas warning you about “chained assignment”—you’re trying to assign into a DataFrame object that was created by slicing/filtering another DataFrame, and pandas can’t   guarantee whether you’re modifying the original data or just a temporary copy. This is exactly what SettingWithCopyWarning is about.
+    # Need to make a copy b/c pandas warning you about “chained assignment”.
     df_final= df_temp1.copy()
 
     # Calculating total population sub-groups.
@@ -873,6 +1063,21 @@ def diabete_v_income(df):
     return df_final
 
 def diabete_v_health_insurance(df):
+    """
+        Grabs all of the columns of interest for the Diabetes vs health insurance subgroup
+    
+        Parameters
+        ----------
+        df : pandas.DataFrame
+ 
+        Returns
+        -------
+        pandas.DataFrame
+            DataFrame filtered down to all of releveant columns.
+            
+            
+    """
+    
     cols = [
         'State',
         'Overall - Diabetes-DataValue',
@@ -884,7 +1089,7 @@ def diabete_v_health_insurance(df):
 
     df_temp1 = select_columns(df, cols)
 
-    # Need to make a copy b/c pandas warning you about “chained assignment”—you’re trying to assign into a DataFrame object that was created by slicing/filtering another DataFrame, and pandas can’t   guarantee whether you’re modifying the original data or just a temporary copy. This is exactly what SettingWithCopyWarning is about.
+    # Need to make a copy b/c pandas warning you about “chained assignment”.
     df_final= df_temp1.copy()
 
     # Calculating total population sub-groups.
@@ -902,6 +1107,21 @@ def diabete_v_health_insurance(df):
     return df_final
 
 def diabete_v_poverty(df):
+    """
+        Grabs all of the columns of interest for the Diabetes vs poverty subgroup
+    
+        Parameters
+        ----------
+        df : pandas.DataFrame
+ 
+        Returns
+        -------
+        pandas.DataFrame
+            DataFrame filtered down to all of releveant columns.
+            
+            
+    """
+    
     cols = [
         'State',
         'Overall - Diabetes-DataValue',
@@ -912,7 +1132,7 @@ def diabete_v_poverty(df):
 
     df_temp1 = select_columns(df, cols)
 
-    # Need to make a copy b/c pandas warning you about “chained assignment”—you’re trying to assign into a DataFrame object that was created by slicing/filtering another DataFrame, and pandas can’t   guarantee whether you’re modifying the original data or just a temporary copy. This is exactly what SettingWithCopyWarning is about.
+    # Need to make a copy b/c pandas warning you about “chained assignment”.
     df_final= df_temp1.copy()
 
     # Calculating total population sub-groups.
