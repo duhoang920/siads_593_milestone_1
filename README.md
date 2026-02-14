@@ -59,6 +59,8 @@ This module is responsbile for all visual outputs.
 ## Dependencies
 This project relies on common Python libraries.
 
+* sys
+* os
 * pandas
 * numpy
 * matplotlib
@@ -83,6 +85,7 @@ This project is meant to be run from main.ipynb while you edit the other .py fil
 
 ### Why Autoreload?
 Normally, if you change a .py file, Jupyter won’t notice unless you restart the notebook. Autoreload fixes this by automatically picking up changes when you run a cell.
+Although restarting the kernel achieves the same result, this apporach is recommened.
 
 ### Commands Used
 
